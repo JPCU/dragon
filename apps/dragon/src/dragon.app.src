@@ -1,0 +1,31 @@
+%% vim: ft=erlang
+{application, dragon, [
+   {description, "Snarl backed Erlang powered RADIUS server."},
+   {vsn, git},
+   {registered, [eradius_dict, eradius_sup, eradius_server_top_sup, eradius_server_sup, eradius_server_mon]},
+   {applications, [lager, folsom, kernel, stdlib, crypto, ssl, ibrowse, jsx]},
+   {mod, {dragon, []}},
+   {env, [
+
+      {logging, true},
+      {logfile, "./radius.log"},
+      {tables, [dictionary]},
+      {client_ip, undefined},
+      {client_ports, 20},
+      {resend_timeout, 30000},
+    %% RADIUS server configuration:
+
+    %% Note:
+    %% Square brackets ([]) denote an array that consists of n comma-separated objects.
+    %% Curly brackets ({}) denote a tuple that consists of a defined number of objects.
+
+    {snarl_realm, <<"radius">>},
+    {ip_address, {127,0,0,1}},
+    {port, 1812},
+    {
+      nas_list, [{"localhost", {127,0,0,1}, <<"secret">>, [yubi_enabled,<<"NAS1">>,<<"login">>]}]
+    }
+
+
+   ]}
+]}.

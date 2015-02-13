@@ -17,7 +17,7 @@ pre_compile(Config, Appfile) ->
             ok;
         Dictionaries ->
             Basedir =  rebar_config:get_xconf(Config, base_dir),
-            IncludeDir = filename:join([Basedir, "include"]),
+            IncludeDir = filename:join([Basedir, "apps/dragon/include"]),
             ok = filelib:ensure_dir(IncludeDir),
             dictionary_compile(Config, Appfile, Dictionaries)
     end.
@@ -35,9 +35,9 @@ out_files(Config, DictionaryFile) ->
     DictionaryFileBase = filename:basename(DictionaryFile),
     OutfileBase = re:replace(DictionaryFileBase, "\\.", "_", [{return, list}]),
     Headerfile = string:join([OutfileBase, "hrl"], "."),
-    HeaderfileFQ = filename:join([Basedir, "include", Headerfile]),
+    HeaderfileFQ = filename:join([Basedir, "apps/dragon/include", Headerfile]),
     Mapfile = string:join([OutfileBase, "map"], "."),
-    MapfileFQ = filename:join([Basedir, "priv", Mapfile]),
+    MapfileFQ = filename:join([Basedir, "apps/dragon/priv", Mapfile]),
     {HeaderfileFQ, MapfileFQ}.
 
 
@@ -194,7 +194,7 @@ pd(["ATTRIBUTE", Name, Id, Type | Tail]) ->
 pd(["VALUE", Attr, Name, Id]) ->
     case get({attribute, Attr}) of
         undefined ->
-            io:format("missing: ~p~n", [Attr]),
+            io:format("missing: ~p for: ~p with id: ~p~n", [Attr, Name, Id]),
             false;
         AttrId ->
             {ok,#value{id = {AttrId, id2i(Id)}, name = Name}}

@@ -115,43 +115,45 @@ code_change(_OldVsn, State, _Extra) -> {ok, State}.
 %% -- helpers
 
 configure(#state{running = Running}) ->
-    {ok, ConfServList} = application:get_env(servers),
-    case eradius_config:validate_config(ConfServList) of
-        {invalid, Message} ->
-            eradius:error_report("invalid server config: ~s", [Message]),
-            {error, invalid_config};
-        ServList ->
+    case eradius_config:create_server_config(dragon_snarl_handler) of 
+        {ok, Config} ->
+            {{Snarl_realm, ServerIpAddress, ServerPort}, NASList} = Config,
+            application:set_env(libsnarl, realm, Snarl_realm),
+            ServList =  [{{ServerIpAddress, ServerPort}, NASList}],
             NasList = lists:flatmap(fun(Server) ->
-                                            List = server_naslist(Server),
-                                            ets:insert(?NAS_TAB, List),
-                                            List
-                                    end, ServList),
+                List = server_naslist(Server),
+                ets:insert(?NAS_TAB, List),
+                List
+            end, ServList),
             ets:foldl(fun(Nas, _) ->
-                              case lists:member(Nas, NasList) of
-                                  true    -> done;
-                                  false   -> ets:delete(?NAS_TAB, Nas)
-                              end
-                      end, [], ?NAS_TAB),
+                case lists:member(Nas, NasList) of
+                    true    -> done;
+                    false   -> ets:delete(?NAS_TAB, Nas)
+                end
+            end, [], ?NAS_TAB),
             Run     = sets:from_list([element(1, T) || T <- Running]),
             New     = sets:from_list([element(1, T) || T <- ServList]),
             ToStart = sets:subtract(New, Run),
             ToStop  = sets:subtract(Run, New),
             Started = sets:fold(fun (Key, List) ->
-                                        lists:keydelete(Key, 1, List),
-                                        {{IP, Port}, Pid} = lists:keyfind(Key, 1, Running),
-                                        eradius_server_sup:stop_instance(IP, Port, Pid)
-                                end, Running, ToStop),
+                lists:keydelete(Key, 1, List),
+                {{IP, Port}, Pid} = lists:keyfind(Key, 1, Running),
+                eradius_server_sup:stop_instance(IP, Port, Pid)
+                end, Running, ToStop),
             NRunning = sets:fold(fun ({IP, Port}, Acc) ->
-                                         case eradius_server_sup:start_instance(IP, Port) of
-                                             {ok, Pid} ->
-                                                 [{{IP, Port}, Pid} | Acc];
-                                             {error, Error} ->
-                                                 Host = inet_parse:ntoa(IP),
-                                                 eradius:error_report("Could not start listener ~s:~b: ~p~n", [Host, Port, Error]),
-                                                 Acc
-                                         end
-                                 end, Started, ToStart),
-            {ok, #state{running = NRunning}}
+                case eradius_server_sup:start_instance(IP, Port) of
+                    {ok, Pid} ->
+                        [{{IP, Port}, Pid} | Acc];
+                    {error, Error} ->
+                        Host = inet_parse:ntoa(IP),
+                        dragon:error_report("Could not start listener ~s:~b: ~p~n", [Host, Port, Error]),
+                        Acc
+                end
+            end, Started, ToStart),
+            {ok, #state{running = NRunning}};
+        {error, Message} ->
+            dragon:error_report("invalid server config: ~s", [Message]),
+            {error, invalid_config}
     end.
 
 %-spec server_naslist(valid_server()) -> list(#nas{}).

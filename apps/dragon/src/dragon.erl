@@ -1,5 +1,5 @@
 %% @doc Main module of the eradius application.
--module(eradius).
+-module(dragon).
 -export([load_tables/1, load_tables/2,
 	 statistics/0, start/0]).
 
@@ -9,10 +9,10 @@
 %% internal use
 -export([error_report/2, info_report/2]).
 
--include("eradius_lib.hrl").
+-include("../include/eradius_lib.hrl").
 
 start() ->
-    application:ensure_all_started(eradius).
+    application:ensure_all_started(dragon).
 %% @doc Load RADIUS dictionaries from the default directory.
 -spec load_tables(list(eradius_dict:table_name())) -> ok | {error, {consult, eradius_dict:table_name()}}.
 load_tables(Tables) ->
@@ -27,7 +27,7 @@ load_tables(Dir, Tables) ->
 
 %% @doc get server statistics
 statistics() ->
-    folsom_metrics:get_metrics_value(eradius).
+    folsom_metrics:get_metrics_value(dragon).
 
 
 %% @private

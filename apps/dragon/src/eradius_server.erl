@@ -51,7 +51,7 @@
 -behaviour(gen_server).
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]).
 
--include_lib("eradius/include/eradius_lib.hrl").
+-include_lib("../include/eradius_lib.hrl").
 
 -define(RESEND_TIMEOUT, 5000).          % how long the binary response is kept after sending it on the socket
 -define(RESEND_RETRIES, 3).             % how often a reply may be resent
@@ -264,11 +264,6 @@ handle_remote_request(ReplyPid, HandlerMod, HandlerArg, NasPropTuple, EncRequest
     NasProp = nas_prop_tuple_to_record(NasPropTuple),
     Result = handle_request({HandlerMod, HandlerArg}, NasProp, EncRequest),
     ReplyPid ! {self(), Result}.
-
-nas_prop_record_to_tuple(R = #nas_prop{}) ->
-    {nas_prop_v1, R#nas_prop.server_ip, R#nas_prop.server_port,
-                  R#nas_prop.nas_ip, R#nas_prop.nas_port,
-                  R#nas_prop.secret, R#nas_prop.trace}.
 
 nas_prop_tuple_to_record({nas_prop_v1, ServerIP, ServerPort, NasIP, NasPort, Secret, Trace}) ->
     #nas_prop{server_ip = ServerIP, server_port = ServerPort,

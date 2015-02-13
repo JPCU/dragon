@@ -47,6 +47,15 @@
 -define(RTCNAS_Request,     10).
 -define(RTCNAS_Reboot,      11).
 
+
+
+-record(server_config, {
+    snarl_realm    = <<>>  :: binary(),
+    ip_address     = {}    :: inet:ip_address(),
+    port           = 0     ::eradius_server:port_number()
+}).
+
+
 -record(nas_counter, {
           key                          :: term(),
           requests                 = 0 :: non_neg_integer(),

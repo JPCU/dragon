@@ -3,6 +3,15 @@ eradius
 
 A generic RADIUS client and server.
 
+Version 0.6.0 - 19 Feb 2015
+---------------------------
+
+* changed from generic radius client/server to prupose built Snarl backed radius server.
+* removed radius client
+* fixed logic errors
+* changed config layout to more something more sensible
+
+
 Version 0.5.1 - xx Aug 2014
 ---------------------------
 

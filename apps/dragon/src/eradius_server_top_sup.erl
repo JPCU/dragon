@@ -24,4 +24,6 @@ init([]) ->
     ServerSup = {sup, {eradius_server_sup, start_link, []}, permanent, infinity, supervisor, [eradius_server_sup]},
     ServerMon = {mon, {eradius_server_mon, start_link, []}, permanent, brutal_kill, worker, [eradius_server_mon]},
 
+    libsnarl:start(),
+
     {ok, {SupFlags, [ServerSup, ServerMon]}}.

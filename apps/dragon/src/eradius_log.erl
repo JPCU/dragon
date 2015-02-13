@@ -59,7 +59,7 @@ write_request(Sender, Request = #radius_request{}) ->
 %%% gen_server callbacks
 %%%===================================================================
 init(_) ->
-    {ok, LogFile} = application:get_env(eradius, logfile),
+    {ok, LogFile} = application:get_env(dragon, logfile),
     filelib:ensure_dir(LogFile),
     case file:open(LogFile, [append]) of
     {ok, Fd} ->
@@ -79,7 +79,7 @@ handle_cast({write_request, Time, Sender, Request}, State) ->
 	ok = io:put_chars(State, Msg)
     catch
 	_:Error ->
-	    eradius:error_report("Failed to log RADIUS request: ~p~n~p", [Error, Request]),
+	    dragon:error_report("Failed to log RADIUS request: ~p~n~p", [Error, Request]),
 	    ok
     end,
     {noreply, State}.

@@ -40,7 +40,7 @@ lookup(Id) ->
 
 -spec load_tables(list(table_name())) -> ok | {error, {consult, table_name()}}.
 load_tables(Tables) when is_list(Tables) ->
-    load_tables(code:priv_dir(eradius), Tables).
+    load_tables(code:priv_dir(dragon), Tables).
 
 -spec load_tables(file:filename(), list(table_name())) -> ok | {error, {consult, table_name()}}.
 load_tables(Dir, Tables) when is_list(Tables) ->
@@ -56,7 +56,7 @@ init([]) ->
         {ok, Tables} ->
             Tables
     end,
-    do_load_tables(code:priv_dir(eradius), InitialLoadTables),
+    do_load_tables(code:priv_dir(dragon), InitialLoadTables),
     {ok, #state{}}.
 
 create_table() ->
@@ -87,9 +87,9 @@ do_load_tables(Dir, Tables) ->
                                      end
                              end, Tables),
         ets:insert(?TABLENAME, Defs),
-        eradius:info_report("Loaded RADIUS tables: ~p", [Tables])
+        dragon:info_report("Loaded RADIUS tables: ~p", [Tables])
     catch
         throw:{consult, FailedTable} ->
-            eradius:error_report("Failed to load RADIUS table: ~s (wanted: ~p)", [FailedTable, Tables]),
+            dragon:error_report("Failed to load RADIUS table: ~s (wanted: ~p)", [FailedTable, Tables]),
             {error, {consult, FailedTable}}
     end.

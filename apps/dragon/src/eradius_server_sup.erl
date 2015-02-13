@@ -15,12 +15,12 @@ start_link() ->
 
 start_instance(IP, Port) ->
     IPString = inet_parse:ntoa(IP),
-    eradius:info_report("Starting RADIUS Listener at ~s:~b~n", [IPString, Port]),
+    dragon:info_report("Starting RADIUS Listener at ~s:~b~n", [IPString, Port]),
     supervisor:start_child(?SERVER, [IP, Port]).
 
 stop_instance(IP, Port, Pid) ->
     IPString = inet_parse:ntoa(IP),
-    eradius:info_report("Stopping RADIUS Listener at ~s:~b~n", [IPString, Port]),
+    dragon:info_report("Stopping RADIUS Listener at ~s:~b~n", [IPString, Port]),
     supervisor:terminate_child(?SERVER, Pid).
 
 all() ->
