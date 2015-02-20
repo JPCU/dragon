@@ -1,0 +1,5 @@
+Dragon is a RADIUS server that talks with Project Fifo's Snarl. This can 
+be ran in conjunction with a full Fifo install, or a minimal Snarl only
+install. 
+
+http://github.com/JPCU/dragon

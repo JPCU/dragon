@@ -8,7 +8,6 @@ include/dictionary_*.hrl
 include/ERADIUS-MIB.hrl
 *.log
 /dist/
-/rel/
 /deps/
 /test-log/
 /doc/

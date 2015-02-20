@@ -1,0 +1,11 @@
+.------------------------------------------------------------------------------.
+|                                                                              |
+|   Congratulations the Dragon RADIUS server is now installed on the system.   |
+|                                                                              |
+|    Please update the config located at /opt/local/dragon/etc/dragon.config   |
+|                                                                              |
+|    The Dragon service can be started with:                                   |
+|                       svcadm enable dragon                                   |
+|                                                                              |
+`------------------------------------------------------------------------------'
+
