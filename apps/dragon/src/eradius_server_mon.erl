@@ -117,8 +117,7 @@ code_change(_OldVsn, State, _Extra) -> {ok, State}.
 configure(#state{running = Running}) ->
     case eradius_config:create_server_config(dragon_snarl_handler) of 
         {ok, Config} ->
-            {{Snarl_realm, ServerIpAddress, ServerPort}, NASList} = Config,
-            application:set_env(libsnarl, realm, Snarl_realm),
+            {{ServerIpAddress, ServerPort}, NASList} = Config,
             ServList =  [{{ServerIpAddress, ServerPort}, NASList}],
             NasList = lists:flatmap(fun(Server) ->
                 List = server_naslist(Server),

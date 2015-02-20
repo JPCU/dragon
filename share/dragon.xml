@@ -2,11 +2,12 @@
 <!DOCTYPE service_bundle SYSTEM "/usr/share/lib/xml/dtd/service_bundle.dtd.1">
 <!--
 Copyright 2012 Project FiFo / Heinz N. Gies
+Copyright 2015 John Paul the Great Catholic University / Kevin Meziere
 -->
 
-<service_bundle type='manifest' name='sniffle'>
+<service_bundle type='manifest' name='dragon'>
   <service
-      name='network/sniffle'
+      name='network/dragon'
       type='service'
       version='0.3.0'>
     <create_default_instance enabled='false' />
@@ -37,14 +38,12 @@ Copyright 2012 Project FiFo / Heinz N. Gies
     <exec_method
         type='method'
         name='start'
-        exec='/opt/local/fifo-sniffle/bin/sniffle %m'
+        exec='/opt/local/dragon/bin/dragon %m'
         timeout_seconds='30'>
       <method_context>
-        <!--method_credential user='sniffle' group='sniffle' /-->
+        <!--method_credential user='dragon' group='dragon' /-->
         <method_environment>
           <envvar name='PATH' value='/opt/local/gnu/bin:/opt/local/bin:/opt/local/sbin:/usr/bin:/usr/sbin'/>
-          <envvar name='HOME' value='/var/db/sniffle'/>
-          <!--envvar name='http_proxy' value='http://10.0.0.1'/-->
         </method_environment>
       </method_context>
     </exec_method>
@@ -52,14 +51,12 @@ Copyright 2012 Project FiFo / Heinz N. Gies
     <exec_method
         name='restart'
         type='method'
-        exec='/opt/local/fifo-sniffle/bin/sniffle %m'
+        exec='/opt/local/dragon/bin/dragon %m'
         timeout_seconds='120'>
       <method_context>
-        <!--method_credential user='sniffle' group='sniffle' /-->
+        <!--method_credential user='dragon' group='dragon' /-->
         <method_environment>
           <envvar name='PATH' value='/opt/local/gnu/bin:/opt/local/bin:/opt/local/sbin:/usr/bin:/usr/sbin'/>
-          <envvar name='HOME' value='/var/db/sniffle'/>
-          <!--envvar name='http_proxy' value='http://10.0.0.1'/-->
         </method_environment>
       </method_context>
     </exec_method>
@@ -67,14 +64,12 @@ Copyright 2012 Project FiFo / Heinz N. Gies
     <exec_method
         name='stop'
         type='method'
-        exec='/opt/local/fifo-sniffle/bin/sniffle %m'
+        exec='/opt/local/dragon/bin/dragon %m'
         timeout_seconds='120'>
       <method_context>
-        <!--method_credential user='sniffle' group='sniffle' /-->
+        <!--method_credential user='dragon' group='dragon' /-->
         <method_environment>
           <envvar name='PATH' value='/opt/local/gnu/bin:/opt/local/bin:/opt/local/sbin:/usr/bin:/usr/sbin'/>
-          <envvar name='HOME' value='/var/db/sniffle'/>
-          <!--envvar name='http_proxy' value='http://10.0.0.1'/-->
         </method_environment>
       </method_context>
     </exec_method>

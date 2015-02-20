@@ -47,7 +47,7 @@ start_link() ->
 
 -spec write_request(sender(), #radius_request{}) -> ok.
 write_request(Sender, Request = #radius_request{}) ->
-    case application:get_env(eradius, logging) of
+    case application:get_env(dragon, logging) of
         {ok, true} ->
             Time = calendar:universal_time(),
 	    gen_server:cast(?SERVER, {write_request, Time, Sender, Request});

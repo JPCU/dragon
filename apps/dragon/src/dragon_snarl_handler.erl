@@ -42,7 +42,8 @@ radius_request(R, Nas, Opt) ->
 
 
 check_authentication({User, RequestedPerms}, {ok,{token,AuthToken}}) ->
-    check_authorization({User, RequestedPerms}, libsnarl:allowed({token, AuthToken}, RequestedPerms));
+   check_authorization({User, RequestedPerms}, libsnarl:allowed({token, AuthToken}, RequestedPerms));
+  %  check_authorization({User, RequestedPerms}, libsnarl:allowed({token, AuthToken}, RequestedPerms));
 check_authentication({User, _RequestedPerms}, {error,no_servers}) ->  
     lager:warning("~s failed authentication (No available Snarl server).~n", [User]),
     {reply, #radius_request{cmd = reject, attrs = []}};

@@ -119,10 +119,12 @@ inc_server_counter(Counter, _State = #state{ip = IP, port = Port}) ->
 
 %% @private
 handle_info(ReqUDP = {udp, Socket, FromIP, FromPortNo, Packet}, State = #state{transacts = Transacts}) ->
+    X = lookup_nas(State, FromIP, Packet),
     NewState = case lookup_nas(State, FromIP, Packet) of
         {ok, ReqID, Handler, NasProp} ->
             ReqKey = {FromIP, FromPortNo, ReqID},
             NNasProp = NasProp#nas_prop{nas_port = FromPortNo},
+            Y = orddict:find(ReqKey, Transacts) ,
             case orddict:find(ReqKey, Transacts) of
                 error ->
                     HandlerPid = proc_lib:spawn_link(?MODULE, do_radius, [self(), ReqKey, Handler, NNasProp, ReqUDP]),
@@ -207,7 +209,7 @@ do_radius(ServerPid, ReqKey, Handler, NasProp, {udp, Socket, FromIP, FromPort, E
             gen_udp:send(Socket, FromIP, FromPort, EncReply),
             ServerPid ! {replied, ReqKey, self()},
             inc_nas_counter(replies, NasProp),
-            {ok, ResendTimeout} = application:get_env(eradius, resend_timeout),
+            {ok, ResendTimeout} = application:get_env(dragon, resend_timeout),
             wait_resend_init(ServerPid, ReqKey, FromIP, FromPort, EncReply, ResendTimeout, ?RESEND_RETRIES);
         {discard, Reason} ->
             lager:debug("discarding request ~p: ~1000.p~n", [ReqKey, Reason]),
@@ -248,7 +250,6 @@ handle_request({HandlerMod, HandlerArg}, NasProp, EncRequest) ->
         Request = #radius_request{} ->
             request_inc_counter(Request#radius_request.cmd, NasProp),
             Sender = {NasProp#nas_prop.nas_ip, NasProp#nas_prop.nas_port, Request#radius_request.reqid},
-            lager:debug("Sender: ~p; Command: ~p; Packet: ~p", [Sender, Request#radius_request.cmd, Request]),
             apply_handler_mod(HandlerMod, HandlerArg, Request, NasProp);
         bad_pdu ->
             {discard, bad_pdu}

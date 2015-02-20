@@ -1,0 +1,65 @@
+%% -*- erlang -*-
+
+%% @doc The TCP endpoint that Dragon will listen on.
+{mapping, "listener", "dragon.listener_address",
+ [{default, {"127.0.0.1", 1812 }},
+  {datatype, ip}]}.
+
+
+
+%% @doc Network access servers are defined in the following manner:
+%%
+%% NAS.device1.address = 127.0.0.1:100
+%% NAS.device1.secret = secret
+%% NAS.device1.permissions = network.remote.login
+%%
+%% NAS.device2.address = 10.10.10.10:100
+%% NAS.device2.secret = secret2
+%% NAS.device2.permissions = any.permission.in.snarl
+%% NAS.device2.requireMFA = true  ## Require a yubikey to auth
+
+
+{mapping, "NAS.$name.address", "dragon.NAS", [
+  {datatype, string},
+  {commented, "127.0.0.1"}
+]}.
+
+ {mapping, "NAS.$name.secret", "dragon.NAS", [
+  {datatype, string},
+  {commented, "secret"}
+]}.
+
+ {mapping, "NAS.$name.permissions", "dragon.NAS", [
+  {datatype, string},
+  {commented, "network.remote.login"}
+]}.
+
+{mapping, "NAS.$name.permissions", "dragon.NAS", [
+  {datatype, string},
+  {commented, "network.remote.login"}
+]}.
+
+{mapping, "NAS.$name.requireMFA", "dragon.NAS", [
+  {datatype, {enum, [true, false]}},
+  {commented, "false"}
+]}.
+
+{translation,
+ "dragon.NAS",
+  fun(Conf) ->
+      FullNASList = cuttlefish_variable:filter_by_prefix("NAS", Conf),
+      [ N || N <- FullNASList]
+  end
+}.
+
+
+ {mapping, "logfile", "dragon.logfile", [
+  {datatype, string},
+  {default, "/var/log/dragon/radius.log"}
+]}.
+
+ {mapping, "logging", "dragon.logging", [
+  {datatype, {enum, [true, false]}},
+  {default, true}
+]}.
+

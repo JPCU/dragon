@@ -23,54 +23,102 @@
 create_server_config(HandlerModule) ->
     case server_config(#server_config{}) of
         {ok, S} ->
-            case application:get_env(nas_list) of
-                {ok, ListOfNases} ->
-                    case validate_naslist(HandlerModule, ListOfNases) of
-                        {ok, NASList} ->
-                            {ok, {{S#server_config.snarl_realm, S#server_config.ip_address, S#server_config.port}, NASList}};
-                        _ ->
-                            {error, <<"Invalid NAS list">>}
-                    end;
-                _ ->
-                    {error, <<"NAS list not specified">>}
-            end;
+            R = create_naslist(HandlerModule),
+            %case application:get_env(nas_list) of
+            %    {ok, ListOfNases} ->
+            %        case validate_naslist(HandlerModule, ListOfNases) of
+            %            {ok, NASList} ->
+                            {ok, {{S#server_config.ip_address, S#server_config.port}, R}};
+            %            _ ->
+            %                {error, <<"Invalid NAS list">>}
+            %        end;
+            %    _ ->
+            %        {error, <<"NAS list not specified">>}
+            %end;
         _ ->
             {error, <<"Bad Server Config">>}
     end.
     
 
 
-
-server_config(S = #server_config{snarl_realm = <<>>}) ->
-    case application:get_env(snarl_realm) of
-        {ok, SnarlRealm} ->
-            server_config(S#server_config{snarl_realm=SnarlRealm});
-        _ ->
-            lager:error("eradius_config could not load application env varible: snarl_realm~n"),
-            error
-    end;
-
 server_config(S = #server_config{ip_address = {} }) ->
-    case application:get_env(ip_address) of
-        {ok, IPAddress} ->
-            server_config(S#server_config{ip_address=IPAddress});
+    case application:get_env(listener_address) of
+        {ok, {IPAddress, Port}} ->
+            {ok, IP} = inet_parse:address(IPAddress),
+            server_config(S#server_config{ip_address=IP, port=Port});
         _ ->
             lager:error("eradius_config could not load application env varible: ip_address~n"),
             error
     end;
 
-server_config(S = #server_config{port=0}) ->
-    case application:get_env(port) of
-        {ok, Port} ->
-            server_config(S#server_config{port=Port});
-        _ ->
-            lager:error("eradius_config could not load application env varible: port~n"),
-            error
-    end;
 
 server_config(S) ->
     {ok, S}.
 
+
+create_naslist(HandlerModule) ->
+    {ok, FullList} = application:get_env('NAS'),
+    AddressList = create_address_list(FullList, []),
+    SecretsList = create_secret_list(FullList, []),
+    PermissionsList = create_permissions_list(FullList, []),
+    MFAList = create_mfa_list(FullList, []),
+    compile_naslist(HandlerModule, AddressList, SecretsList, PermissionsList, MFAList, []).
+
+compile_naslist(HandlerModule, [{Name, IP} | T], SecretsList, PermissionsList, MFAList, CompiledList) ->
+    Secret = get_value_from_list(Name, SecretsList),
+    Permissions = get_value_from_list(Name, PermissionsList),
+    MFARequired = get_value_from_list(Name, MFAList),
+    case MFARequired of
+        true ->
+            NewListItem = {Name, IP, Secret, HandlerModule, lists:flatten([yubi_enabled, Permissions])};
+        _ ->
+            NewListItem = {Name, IP, Secret, HandlerModule, Permissions}
+        end,
+
+    compile_naslist(HandlerModule, T, SecretsList, PermissionsList, MFAList, [NewListItem | CompiledList]);
+
+compile_naslist(_, [], _, _, _, CompiledList) ->
+    CompiledList.
+
+
+get_value_from_list(NasDeviceName, [{NasDeviceName, Value}|T]) ->
+    Value;
+get_value_from_list(NasDeviceName, [_H|T]) ->
+    get_value_from_list(NasDeviceName, T);
+get_value_from_list(_, []) ->
+    not_found.
+
+
+create_address_list([{["NAS",NasDeviceName,"address"],IPAddress}|T], Collector) -> 
+    {ok, IP} = inet_parse:address(IPAddress),
+    create_address_list(T, lists:append([{NasDeviceName, IP}], Collector));
+create_address_list([_H|T], Collector) ->
+    create_address_list(T, Collector);
+create_address_list([], Collector) -> 
+    Collector.
+
+create_secret_list([{["NAS",NasDeviceName,"secret"],Secret}|T], Collector) -> 
+    create_secret_list(T, lists:append([{NasDeviceName, list_to_binary(Secret)}], Collector));
+create_secret_list([_H|T], Collector) ->
+    create_secret_list(T, Collector);
+create_secret_list([], Collector) -> 
+    Collector.
+
+create_permissions_list([{["NAS",NasDeviceName,"permissions"],PermList}|T], Collector) -> 
+    TokenizedPermissions = [list_to_binary(X) || X <- string:tokens(PermList, ".")],
+    create_permissions_list(T, lists:append([{NasDeviceName, TokenizedPermissions}], Collector));
+create_permissions_list([_H|T], Collector) ->
+    create_permissions_list(T, Collector);
+create_permissions_list([], Collector) -> 
+    Collector.
+
+
+create_mfa_list([{["NAS",NasDeviceName,"requireMFA"],MFARequirement}|T], Collector) -> 
+     create_mfa_list(T, lists:append([{NasDeviceName, MFARequirement}], Collector));
+create_mfa_list([_H|T], Collector) ->
+    create_mfa_list(T, Collector);
+create_mfa_list([], Collector) -> 
+    Collector.
 
 
 
