@@ -1,16 +1,33 @@
-# eradius
+# Dragon
 
 This fork of eradius is a radical deviation from the original
-Jungerl code. It contains a generic RADIUS client, support for 
-several authentication mechanisms and dynamic configuration
-(it implements the `config_change/3` application callback).
+Jungerl code. 
+
+## MFA For All!
+Dragon supports Yubikey usage by appending the OTP at the end of the user password.
+
+The current release is v0.6-beta.1
+This is a beta release. Probably works but dont use it for protecting
+the castle. v0.6.1 is expected March 1, 2015 and will be production ready.
+
+## Backed by Snarl
+Snarl is a right management server build on top of riak_core. More info here:
+https://github.com/project-fifo/snarl
+
+## 100% Uptime
+v0.7 will have functionality for 100% uptime including live configuration reloads,
+and zero downtime upgrades.
+
+## Likely to move.
+This project will likely be merged into the Project-Fifo organization.
+A note will be posted here when/if that happens.
 
 
-## Starting eradius from cli
+## Installing on SmartOS
 
 ```
-erl -pa $PWD/ebin -pa $PWD/deps/*/ebin -pa $PWD/priv
-application:ensure_all_started(dragon).
+wget https://github.com/JPCU/dragon/releases/download/v0.6-beta.1/dragon.tar.gz
+pkg_add -u dragon.tar.gz
 ```
 
-Note: To use `ensure_all_started` you will need Erlang R16B02 or better.
+Note: Requires Erlang R16B02 or better.
