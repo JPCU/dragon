@@ -16,11 +16,12 @@ deps
 /doc/
 !/doc/overview.edoc
 erl_crash.dump
-rel/howl
-rel/howl.tar.bz2
+rel/dragon
+rel/dragon.tar.bz2
 rel/pkg/*.tgz
 rel/pkg/build-info
 rel/pkg/packlist
+rel/pkg/deploy
 TEST*
 _build
 .DS_Store
