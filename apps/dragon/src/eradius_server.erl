@@ -119,12 +119,12 @@ inc_server_counter(Counter, _State = #state{ip = IP, port = Port}) ->
 
 %% @private
 handle_info(ReqUDP = {udp, Socket, FromIP, FromPortNo, Packet}, State = #state{transacts = Transacts}) ->
-    X = lookup_nas(State, FromIP, Packet),
+  %  lookup_nas(State, FromIP, Packet),
     NewState = case lookup_nas(State, FromIP, Packet) of
         {ok, ReqID, Handler, NasProp} ->
             ReqKey = {FromIP, FromPortNo, ReqID},
             NNasProp = NasProp#nas_prop{nas_port = FromPortNo},
-            Y = orddict:find(ReqKey, Transacts) ,
+            %Y = orddict:find(ReqKey, Transacts) ,
             case orddict:find(ReqKey, Transacts) of
                 error ->
                     HandlerPid = proc_lib:spawn_link(?MODULE, do_radius, [self(), ReqKey, Handler, NNasProp, ReqUDP]),
@@ -249,7 +249,7 @@ handle_request({HandlerMod, HandlerArg}, NasProp, EncRequest) ->
     case eradius_lib:decode_request(EncRequest, NasProp#nas_prop.secret) of
         Request = #radius_request{} ->
             request_inc_counter(Request#radius_request.cmd, NasProp),
-            Sender = {NasProp#nas_prop.nas_ip, NasProp#nas_prop.nas_port, Request#radius_request.reqid},
+           % Sender = {NasProp#nas_prop.nas_ip, NasProp#nas_prop.nas_port, Request#radius_request.reqid},
             apply_handler_mod(HandlerMod, HandlerArg, Request, NasProp);
         bad_pdu ->
             {discard, bad_pdu}

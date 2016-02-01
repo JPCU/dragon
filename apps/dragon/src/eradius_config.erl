@@ -81,7 +81,7 @@ compile_naslist(_, [], _, _, _, CompiledList) ->
     CompiledList.
 
 
-get_value_from_list(NasDeviceName, [{NasDeviceName, Value}|T]) ->
+get_value_from_list(NasDeviceName, [{NasDeviceName, Value}| _T]) ->
     Value;
 get_value_from_list(NasDeviceName, [_H|T]) ->
     get_value_from_list(NasDeviceName, T);
@@ -122,22 +122,22 @@ create_mfa_list([], Collector) ->
 
 
 
-validate_naslist(HandlerModule, ListOfNases) -> 
-    validate_naslist(HandlerModule, ListOfNases, []).
+% validate_naslist(HandlerModule, ListOfNases) -> 
+%     validate_naslist(HandlerModule, ListOfNases, []).
 
-validate_naslist(_HandlerModule, [{_NasID, _NasIP, _Secret, []}| _T], _Collector) ->
-    {error, <<"Invalid NAS Permissions">>};
-validate_naslist(HandlerModule, [{NasID, NasIP, Secret, Permissions}| T], Collector) ->
-    case validate_ip(NasIP) of
-        ok ->
-            validate_naslist(HandlerModule, T, [{NasID, NasIP, Secret, HandlerModule, Permissions}| Collector]);
-        _ ->
-            {error, <<"Invalid NAS IP address">>}
-    end;
-validate_naslist(_, [], Collector) -> 
-    {ok, lists:flatten(Collector)};
-validate_naslist(_, _, _) ->
-    {error, <<"Bad NAS Config">>}.
+% validate_naslist(_HandlerModule, [{_NasID, _NasIP, _Secret, []}| _T], _Collector) ->
+%     {error, <<"Invalid NAS Permissions">>};
+% validate_naslist(HandlerModule, [{NasID, NasIP, Secret, Permissions}| T], Collector) ->
+%     case validate_ip(NasIP) of
+%         ok ->
+%             validate_naslist(HandlerModule, T, [{NasID, NasIP, Secret, HandlerModule, Permissions}| Collector]);
+%         _ ->
+%             {error, <<"Invalid NAS IP address">>}
+%     end;
+% validate_naslist(_, [], Collector) -> 
+%     {ok, lists:flatten(Collector)};
+% validate_naslist(_, _, _) ->
+%     {error, <<"Bad NAS Config">>}.
 
 
 
